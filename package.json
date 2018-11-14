@@ -1,0 +1,22 @@
+{
+  "name": "sunday-school-lessons",
+  "version": "1.0.0",
+  "description": "A tool to facilitate translating Chris Jackson's Sunday School Curriculum.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/silcam/sunday-school-lessons.git"
+  },
+  "author": "Rick Conrad",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/silcam/sunday-school-lessons/issues"
+  },
+  "homepage": "https://github.com/silcam/sunday-school-lessons#readme",
+  "dependencies": {
+    "libxmljs": "^0.19.5"
+  }
+}
