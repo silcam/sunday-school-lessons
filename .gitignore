@@ -1,5 +1,11 @@
 node_modules
 .vscode
 
+sources
+config.json
+sample-doc
+
+.tmp/*
+
 # LibreOffice lockfiles
 .~lock*
