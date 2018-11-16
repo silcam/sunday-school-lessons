@@ -1,58 +1,97 @@
 const fs = require("fs");
 const child_process = require("child_process");
 const parse = require("./functions/parse");
+const db = require("./functions/db");
+const config = require("./functions/config");
 
-const configJson = "config.json";
 const sourceDir = "sources";
 const tmpDir = ".tmp";
 const contentXml = "content.xml";
+const lastImportDateParam = "lastImportDate";
 
-console.log("Checking for files to import...");
+importSources();
 
-const filePaths = getFilesToImport();
+async function importSources() {
+  try {
+    console.log("Checking for files to import...");
 
-for (let i = 0; i < filePaths.length; ++i) {
-  console.log(`Unzipping ${filePaths[i]}...`);
-  let workingDir = unzip(filePaths[i]);
-  let contentXmlPath = workingDir + "/" + contentXml;
-  let strings = parse(contentXmlPath);
-  console.log(strings);
+    const langsFiles = getFilesToImport();
+
+    if (langsFiles.length == 0)
+      console.log("No new or updated source files found.");
+
+    for (let i = 0; i < langsFiles.length; ++i) {
+      let langFiles = langsFiles[i];
+      for (let j = 0; j < langFiles.files.length; ++j) {
+        await importSource(langFiles.language, langFiles.files[j]);
+      }
+    }
+    config.setParam(lastImportDateParam, new Date().valueOf());
+  } catch (error) {
+    console.error(error);
+    console.error(
+      "\nSomething went wrong. Copy the message above and send it to Rick."
+    );
+  }
+}
+
+async function importSource(language, filepath) {
+  console.log(`Unzipping ${filepath}...`);
+  const workingDir = unzip(filepath);
+  const contentXmlPath = workingDir + "/" + contentXml;
+  const lesson = lessonFromFilepath(filepath);
+  console.log(`Extracting strings for ${language} lesson ${lesson}...`);
+  const strings = parse(contentXmlPath);
+  console.log(`Got ${strings.length} strings. Adding to database...`);
+  const dbRVar = await db.insertStrings(language, lesson, strings);
+  if (dbRVar.error) throw dbRVar.error;
+  console.log(`...done\n\n`);
   rmdirRecursive(workingDir);
 }
 
-// ================== The End ================================
+function lessonFromFilepath(filepath) {
+  const filename = nameFromPath(filepath);
+  const pattern = /Q\d+-L\d+/;
+  return pattern.exec(filename)[0];
+}
 
 function getFilesToImport() {
-  const lastRunDate = getLastRunDate();
+  const lastImportDate = config.getParam(lastImportDateParam, 0);
   const langDirs = readDirPaths(sourceDir);
-  let files = [];
+  let langsFiles = [];
   for (let i = 0; i < langDirs.length; ++i) {
-    files = files.concat(getFilesToImportFromDir(langDirs[i], lastRunDate));
+    let files = getFilesToImportFromDir(langDirs[i], lastImportDate);
+    if (files.length > 0)
+      langsFiles.push({
+        language: nameFromPath(langDirs[i]),
+        files: files
+      });
   }
-  return files;
+  return langsFiles;
 }
 
 function getFilesToImportFromDir(dir, lastRunDate) {
   const allFiles = readDirPaths(dir);
-  return lastRunDate
-    ? allFiles.filter(filepath => shouldImport(filepath, lastRunDate))
-    : allFiles;
+  return allFiles.filter(filepath => shouldImport(filepath, lastRunDate));
 }
 
 function shouldImport(filepath, lastRunDate) {
-  return fs.statSync(filepath).mtimeMs > lastRunDate;
-}
-
-function getLastRunDate() {
-  if (!fs.existsSync(configJson)) return undefined;
-  const config = JSON.parse(fs.readFileSync(configJson));
-  return config.lastSourceImportDate;
+  return (
+    filepath.endsWith(".odt") && fs.statSync(filepath).mtimeMs > lastRunDate
+  );
 }
 
 function unzip(filepath) {
   const workingDir = `${tmpDir}/${nameFromPath(filepath)}`;
+  verifyDirClear(workingDir);
   child_process.execSync(`unzip "${filepath}" -d "${workingDir}"`);
   return workingDir;
+}
+
+function verifyDirClear(dir) {
+  if (fs.existsSync(dir)) {
+    rmdirRecursive(dir);
+  }
 }
 
 function rmdirRecursive(dir) {

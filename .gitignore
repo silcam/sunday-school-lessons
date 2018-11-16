@@ -7,5 +7,7 @@ sample-doc
 
 .tmp/*
 
+strings.db
+
 # LibreOffice lockfiles
 .~lock*
