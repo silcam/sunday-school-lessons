@@ -1,22 +1,34 @@
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
 
-const dbFile = "translate-lessons-distrib/strings.db";
+const dbFile = "strings.db";
 const schemaSql = fs.readFileSync("schema.sql").toString();
 
 async function getStrings(langPattern, lesson) {
   const db = getDatabase();
+  langPattern = `%${langPattern}%`;
   try {
-    langPattern = `%${langPattern}%`;
-    const sql =
-      "SELECT * FROM strings WHERE language LIKE $langPattern AND lesson=$lesson;";
-    const params = { $langPattern: langPattern, $lesson: lesson };
-    return await dbAllPromise(db, sql, params);
+    return lesson
+      ? getStringsByLanguageAndLesson(db, langPattern, lesson)
+      : getStringsByLanguage(db, langPattern);
   } catch (err) {
     throw err;
   } finally {
     db.close();
   }
+}
+
+async function getStringsByLanguage(db, langPattern) {
+  const sql = "SELECT * FROM strings WHERE language LIKE $langPattern;";
+  const params = { $langPattern: langPattern };
+  return await dbAllPromise(db, sql, params);
+}
+
+async function getStringsByLanguageAndLesson(db, langPattern, lesson) {
+  const sql =
+    "SELECT * FROM strings WHERE language LIKE $langPattern AND lesson=$lesson;";
+  const params = { $langPattern: langPattern, $lesson: lesson };
+  return await dbAllPromise(db, sql, params);
 }
 
 async function insertStrings(language, lesson, strings) {

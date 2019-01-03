@@ -1,4 +1,7 @@
 const express = require("express");
+const layout = require("./layout");
+const index = require("./routes/index");
+const lesson = require("./routes/lesson");
 
 const app = express();
 // app.use(express.json());
@@ -26,33 +29,31 @@ const port = 8080;
 // });
 
 app.get("/", async (req, res) => {
-  // res.send(routes.index());
-  res.send("<html><body><h1>Έυρηκα!</h1></body></html>");
+  res.send(layout(index()));
+  // res.send("<html><body><h1>Έυρηκα!</h1></body></html>");
 });
 
-app.get("/api/verses/:code", async (req, res) => {
-  try {
-    const values = await db.getVerses(req.params.code);
-    if (!values) res.status(404).send(`No verses for code: ${req.params.code}`);
-    else {
-      res.json(values);
-    }
-  } catch (error) {
-    console.error("Failed to fetch verse library");
-    console.error(error);
-    res.status(500).send("Database error");
-  }
+app.get("/lesson/:code", async (req, res) => {
+  res.send(layout(lesson(req.params.code)));
 });
 
-function hasValidKey(req) {
-  return req.body.apiKey == secrets.apiKey;
-}
+// app.get("/api/verses/:code", async (req, res) => {
+//   try {
+//     const values = await db.getVerses(req.params.code);
+//     if (!values) res.status(404).send(`No verses for code: ${req.params.code}`);
+//     else {
+//       res.json(values);
+//     }
+//   } catch (error) {
+//     console.error("Failed to fetch verse library");
+//     console.error(error);
+//     res.status(500).send("Database error");
+//   }
+// });
 
 app.listen(port, () =>
   console.log(
-    `Bible Head API listening on port ${port}!\nEnvironment is ${app.get(
-      "env"
-    )}`
+    `Translation server is running!\nGo to http://localhost:8080 in your browser`
   )
 );
 

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-sources": "node cmd/import-sources.js",
-    "view-strings": "node cmd/view-strings.js"
+    "view-strings": "node cmd/view-strings.js",
+    "export": "node cmd/export.js"
   },
   "repository": {
     "type": "git",
