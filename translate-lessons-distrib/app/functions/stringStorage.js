@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const util = require("./util");
 
 const stringsDir = path.join("app", "strings");
 const translationsDir = path.join(stringsDir, "translations");
@@ -18,11 +19,25 @@ function getStrings(lesson) {
   return combine(strings, translations);
 }
 
+function saveStrings(lesson, translations) {
+  const tStrings = Object.keys(translations).map(key => ({
+    id: parseInt(key),
+    translation: translations[key]
+  }));
+  const filepath = translationsFilePath(lesson);
+  fs.writeFileSync(filepath, JSON.stringify(tStrings));
+}
+
 function getTranslations(lesson) {
-  const translationsPath = path.join(translationsDir, `${lesson}.json`);
+  const translationsPath = translationsFilePath(lesson);
   return fs.existsSync(translationsPath)
     ? JSON.parse(fs.readFileSync(translationsPath))
     : [];
+}
+
+function translationsFilePath(lesson) {
+  util.safeMkDir(translationsDir);
+  return path.join(translationsDir, `${lesson}.json`);
 }
 
 function combine(strings, translations) {
@@ -41,5 +56,6 @@ function combine(strings, translations) {
 
 module.exports = {
   getLessons: getLessons,
-  getStrings: getStrings
+  getStrings: getStrings,
+  saveStrings: saveStrings
 };

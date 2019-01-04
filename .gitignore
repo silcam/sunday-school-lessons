@@ -10,6 +10,8 @@ sample-doc
 strings.db
 
 translate-lessons-distrib/app/strings/*.json
+translate-lessons-distrib/app/strings/translations/*.json
+translate-lessons-distrib/app/params.json
 
 # LibreOffice lockfiles
 .~lock*

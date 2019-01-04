@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/silcam/sunday-school-lessons#readme",
   "dependencies": {
-    "express": "^4.16.4",
     "libxmljs": "^0.19.5",
     "sqlite3": "^4.0.4"
   }
