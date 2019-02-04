@@ -1,4 +1,6 @@
 node_modules
+!translate-lessons-distrib/app/node_modules
+
 .vscode
 
 sources
