@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const stringStorage = require("./functions/stringStorage");
 
 const app = express();
+app.use(express.static("app/public"));
 const formDateParser = bodyParser.urlencoded({ extended: false });
 const port = 8080;
 
