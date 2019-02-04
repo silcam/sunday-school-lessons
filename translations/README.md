@@ -1,0 +1,1 @@
+Place completed translation JSON files in this folder and then run `npm run import-translations`

@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const util = require("./util");
+const params = require("./params");
 
 const stringsDir = path.join("app", "strings");
 const translationsDir = path.join(stringsDir, "translations");
@@ -36,8 +37,9 @@ function getTranslations(lesson) {
 }
 
 function translationsFilePath(lesson) {
+  const targetLang = params.getParams().targetLang;
   util.safeMkDir(translationsDir);
-  return path.join(translationsDir, `${lesson}.json`);
+  return path.join(translationsDir, `${targetLang}-${lesson}.json`);
 }
 
 function combine(strings, translations) {

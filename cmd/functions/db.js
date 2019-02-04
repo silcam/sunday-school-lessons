@@ -37,15 +37,7 @@ async function insertStrings(language, lesson, strings) {
     await clearStrings(db, language, lesson);
     for (let i = 0; i < strings.length; ++i) {
       let strObj = strings[i];
-      let sql =
-        "INSERT INTO strings (language, lesson, xpath, value) VALUES ($language, $lesson, $xpath, $value);";
-      let params = {
-        $language: language,
-        $lesson: lesson,
-        $xpath: strObj.xpath,
-        $value: strObj.text
-      };
-      await dbRunPromise(db, sql, params);
+      await writeString(db, language, lesson, strObj.xpath, strObj.text);
     }
     return {};
   } catch (err) {
@@ -60,6 +52,57 @@ async function clearStrings(db, language, lesson) {
     "DELETE FROM strings WHERE language=$language AND lesson=$lesson;";
   const params = { $language: language, $lesson: lesson };
   return await dbRunPromise(db, deleteSql, params);
+}
+
+async function insertTranslations(language, lesson, translations) {
+  const db = getDatabase();
+  try {
+    await clearStrings(db, language, lesson);
+    for (let i = 0; i < translations.length; ++i) {
+      const translation = translations[i];
+      const original = await getById(db, translation.id);
+      await writeString(
+        db,
+        language,
+        lesson,
+        original.xpath,
+        translation.translation,
+        original.language
+      );
+    }
+  } catch (err) {
+    throw err;
+  } finally {
+    db.close();
+  }
+}
+
+async function getById(db, id) {
+  const sql = "SELECT * FROM strings WHERE id=$id;";
+  const params = { $id: id };
+  const rows = await dbAllPromise(db, sql, params);
+  if (rows.length == 1) return rows[0];
+  else throw `Could not find source string in the database with id ${id}!`;
+}
+
+async function writeString(
+  db,
+  language,
+  lesson,
+  xpath,
+  value,
+  srcLanguage = null
+) {
+  const sql =
+    "INSERT INTO strings (language, lesson, xpath, value, srcLanguage) VALUES ($language, $lesson, $xpath, $value, $srcLanguage);";
+  const params = {
+    $language: language,
+    $lesson: lesson,
+    $xpath: xpath,
+    $value: value,
+    $srcLanguage: srcLanguage
+  };
+  await dbRunPromise(db, sql, params);
 }
 
 function dbRunPromise(db, sql, params) {
@@ -90,5 +133,6 @@ function closeDatabase(db) {
 
 module.exports = {
   insertStrings: insertStrings,
-  getStrings: getStrings
+  getStrings: getStrings,
+  insertTranslations: insertTranslations
 };

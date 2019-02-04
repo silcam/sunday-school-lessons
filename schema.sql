@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS strings (
     language TEXT,
     lesson TEXT,
     xpath TEXT,
-    value TEXT
+    value TEXT,
+    srcLanguage TEXT
 );

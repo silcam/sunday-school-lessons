@@ -17,7 +17,17 @@ function recursiveUnlink(path) {
   }
 }
 
+function readDirPaths(dir) {
+  return fs.readdirSync(dir).map(name => `${dir}/${name}`);
+}
+
+function nameFromPath(path) {
+  return path.slice(path.lastIndexOf("/") + 1);
+}
+
 module.exports = {
   zeroPad: zeroPad,
-  recursiveUnlink: recursiveUnlink
+  recursiveUnlink: recursiveUnlink,
+  readDirPaths: readDirPaths,
+  nameFromPath: nameFromPath
 };

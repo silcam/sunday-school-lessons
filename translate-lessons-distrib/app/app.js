@@ -4,9 +4,10 @@ const index = require("./routes/index");
 const lesson = require("./routes/lesson");
 const bodyParser = require("body-parser");
 const stringStorage = require("./functions/stringStorage");
+const path = require("path");
 
 const app = express();
-app.use(express.static("app/public"));
+app.use(express.static(path.join("app", "public")));
 const formDateParser = bodyParser.urlencoded({ extended: false });
 const port = 8080;
 

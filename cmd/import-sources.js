@@ -3,6 +3,7 @@ const child_process = require("child_process");
 const parse = require("./functions/parse");
 const db = require("./functions/db");
 const config = require("./functions/config");
+const util = require("./functions/util");
 
 const sourceDir = "sources";
 const tmpDir = ".tmp";
@@ -50,20 +51,20 @@ async function importSource(language, filepath) {
 }
 
 function lessonFromFilepath(filepath) {
-  const filename = nameFromPath(filepath);
+  const filename = util.nameFromPath(filepath);
   const pattern = /Q\d+-L\d+/;
   return pattern.exec(filename)[0];
 }
 
 function getFilesToImport() {
   const lastImportDate = config.getParam(lastImportDateParam, 0);
-  const langDirs = readDirPaths(sourceDir);
+  const langDirs = util.readDirPaths(sourceDir);
   let langsFiles = [];
   for (let i = 0; i < langDirs.length; ++i) {
     let files = getFilesToImportFromDir(langDirs[i], lastImportDate);
     if (files.length > 0)
       langsFiles.push({
-        language: nameFromPath(langDirs[i]),
+        language: util.nameFromPath(langDirs[i]),
         files: files
       });
   }
@@ -71,7 +72,7 @@ function getFilesToImport() {
 }
 
 function getFilesToImportFromDir(dir, lastRunDate) {
-  const allFiles = readDirPaths(dir);
+  const allFiles = util.readDirPaths(dir);
   return allFiles.filter(filepath => shouldImport(filepath, lastRunDate));
 }
 
@@ -82,7 +83,7 @@ function shouldImport(filepath, lastRunDate) {
 }
 
 function unzip(filepath) {
-  const workingDir = `${tmpDir}/${nameFromPath(filepath)}`;
+  const workingDir = `${tmpDir}/${util.nameFromPath(filepath)}`;
   verifyDirClear(workingDir);
   child_process.execSync(`unzip "${filepath}" -d "${workingDir}"`);
   return workingDir;
@@ -95,19 +96,11 @@ function verifyDirClear(dir) {
 }
 
 function rmdirRecursive(dir) {
-  const files = readDirPaths(dir);
+  const files = util.readDirPaths(dir);
   for (let i = 0; i < files.length; ++i) {
     let file = files[i];
     if (fs.statSync(file).isDirectory()) rmdirRecursive(file);
     else fs.unlinkSync(file);
   }
   fs.rmdirSync(dir);
-}
-
-function readDirPaths(dir) {
-  return fs.readdirSync(dir).map(name => `${dir}/${name}`);
-}
-
-function nameFromPath(path) {
-  return path.slice(path.lastIndexOf("/") + 1);
 }
