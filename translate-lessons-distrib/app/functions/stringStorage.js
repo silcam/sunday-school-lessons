@@ -21,10 +21,11 @@ function getStrings(lesson) {
 }
 
 function saveStrings(lesson, translations) {
-  const tStrings = Object.keys(translations).map(key => ({
+  let tStrings = Object.keys(translations).map(key => ({
     id: parseInt(key),
     translation: translations[key]
   }));
+  tStrings = tStrings.filter(s => s.translation.length > 0);
   const filepath = translationsFilePath(lesson);
   fs.writeFileSync(filepath, JSON.stringify(tStrings));
 }
