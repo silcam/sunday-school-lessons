@@ -53,6 +53,6 @@ function langFromArgs() {
     throw "Usage: npm run setup-translator [source language][target language]\nEx: npm run setup-translator English Bulu";
   return {
     srcLang: process.argv[2],
-    targetLang: process.argv[3]
+    targetLang: process.argv.slice(3).join(" ")
   };
 }
