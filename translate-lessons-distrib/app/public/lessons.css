@@ -28,6 +28,10 @@ textarea {
     font-size: larger;
 }
 
+textarea {
+    font-family: inherit;
+}
+
 th {
     font-size: smaller;
     padding-right: 12px;

@@ -10,7 +10,8 @@ function getLessons() {
   return fs
     .readdirSync(stringsDir)
     .filter(filename => filename.endsWith(".json"))
-    .map(filename => filename.replace(".json", ""));
+    .map(filename => filename.replace(".json", ""))
+    .sort();
 }
 
 function getStrings(lesson) {
