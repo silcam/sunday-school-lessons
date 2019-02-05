@@ -4,6 +4,7 @@ node_modules
 .vscode
 
 sources
+export
 config.json
 sample-doc
 

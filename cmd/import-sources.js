@@ -1,12 +1,10 @@
 const fs = require("fs");
-const child_process = require("child_process");
 const parse = require("./functions/parse");
 const db = require("./functions/db");
 const config = require("./functions/config");
 const util = require("./functions/util");
 
 const sourceDir = "sources";
-const tmpDir = ".tmp";
 const contentXml = "content.xml";
 const lastImportDateParam = "lastImportDate";
 
@@ -38,7 +36,7 @@ async function importSources() {
 
 async function importSource(language, filepath) {
   console.log(`Unzipping ${filepath}...`);
-  const workingDir = unzip(filepath);
+  const workingDir = util.unzip(filepath);
   const contentXmlPath = workingDir + "/" + contentXml;
   const lesson = lessonFromFilepath(filepath);
   console.log(`Extracting strings for ${language} lesson ${lesson}...`);
@@ -47,7 +45,7 @@ async function importSource(language, filepath) {
   const dbRVar = await db.insertStrings(language, lesson, strings);
   if (dbRVar.error) throw dbRVar.error;
   console.log(`...done\n\n`);
-  rmdirRecursive(workingDir);
+  util.rmdirRecursive(workingDir);
 }
 
 function lessonFromFilepath(filepath) {
@@ -80,27 +78,4 @@ function shouldImport(filepath, lastRunDate) {
   return (
     filepath.endsWith(".odt") && fs.statSync(filepath).mtimeMs > lastRunDate
   );
-}
-
-function unzip(filepath) {
-  const workingDir = `${tmpDir}/${util.nameFromPath(filepath)}`;
-  verifyDirClear(workingDir);
-  child_process.execSync(`unzip "${filepath}" -d "${workingDir}"`);
-  return workingDir;
-}
-
-function verifyDirClear(dir) {
-  if (fs.existsSync(dir)) {
-    rmdirRecursive(dir);
-  }
-}
-
-function rmdirRecursive(dir) {
-  const files = util.readDirPaths(dir);
-  for (let i = 0; i < files.length; ++i) {
-    let file = files[i];
-    if (fs.statSync(file).isDirectory()) rmdirRecursive(file);
-    else fs.unlinkSync(file);
-  }
-  fs.rmdirSync(dir);
 }

@@ -55,6 +55,6 @@ function parseFileName(filename) {
 }
 
 function moveToImported(filePath) {
-  fs.mkdirSync(importedDir);
+  util.mkdirSafe(importedDir);
   fs.renameSync(filePath, `${importedDir}/${util.nameFromPath(filePath)}`);
 }

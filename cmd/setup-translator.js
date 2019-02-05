@@ -49,12 +49,10 @@ function prepareExportDir() {
 }
 
 function langFromArgs() {
-  try {
-    return {
-      srcLang: process.argv[2],
-      targetLang: process.argv[3]
-    };
-  } catch (error) {
-    throw "Usage: npm run export [language]\nEx: npm run export English Bulu";
-  }
+  if (process.argv.length < 4)
+    throw "Usage: npm run setup-translator [source language][target language]\nEx: npm run setup-translator English Bulu";
+  return {
+    srcLang: process.argv[2],
+    targetLang: process.argv[3]
+  };
 }

@@ -8,7 +8,8 @@
     "import-sources": "node cmd/import-sources.js",
     "view-strings": "node cmd/view-strings.js",
     "setup-translator": "node cmd/setup-translator.js",
-    "import-translations": "node cmd/import-translations.js"
+    "import-translations": "node cmd/import-translations.js",
+    "export": "node cmd/export.js"
   },
   "repository": {
     "type": "git",
